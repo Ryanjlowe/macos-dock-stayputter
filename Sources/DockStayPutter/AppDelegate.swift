@@ -10,7 +10,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         statusMenu = StatusMenu(
             onEnabledChange: { [weak self] enabled in self?.fence.setEnabled(enabled) },
-            onMenuOpen: { [weak self] in self?.startFenceIfPossible() }
+            onHomeDisplayChange: { [weak self] uuid in
+                self?.geometry.homeDisplayUUID = uuid
+                self?.pushGeometry()
+            },
+            onMenuOpen: { [weak self] in
+                self?.startFenceIfPossible()
+                self?.pushGeometry()
+            }
         )
 
         pushGeometry()
@@ -33,8 +40,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         pushGeometry()
     }
 
+    /// Sends current bounds to the fence and refreshes the display picker.
     private func pushGeometry() {
         fence.updateDisplays(all: geometry.allBounds, secondary: geometry.secondaryBounds)
+        statusMenu?.setDisplays(
+            geometry.displays,
+            selectedUUID: geometry.homeDisplayUUID,
+            fallbackActive: geometry.isUsingFallback
+        )
     }
 
     /// Checks every 2 seconds until Accessibility access is granted.

@@ -22,7 +22,7 @@ If the Dock has already moved to the MacBook display, push the cursor against th
 
 - The app installs a `CGEventTap` on the session event stream. The tap watches mouse-move and mouse-drag events.
 - When the cursor is within 2 px of the bottom edge of a secondary display, the app moves it back to 2 px above that edge.
-- The main display is never fenced. It's the display that has the menu bar, as set in **System Settings > Displays**.
+- The home display is never fenced. By default that's the main display, the one with the menu bar as set in **System Settings > Displays**. You can pick a different home display from the **Keep Dock On** menu.
 - If another display is stacked directly below a secondary display, the app lets the cursor cross, so you can still move between stacked displays.
 - The app recomputes display geometry when it receives `NSApplication.didChangeScreenParametersNotification`, so plugging in, unplugging, or rearranging displays takes effect right away.
 
@@ -64,6 +64,7 @@ The app checks every 2 seconds and starts fencing the cursor as soon as you gran
 ## Menu bar controls
 
 - **Enabled:** Turns the cursor fence on or off. The app remembers your choice.
+- **Keep Dock On:** Picks the display the Dock should stay on. **Main Display (Automatic)** follows whichever display has the menu bar. Choose a specific display by name to fence every other display instead. The app remembers the display even after you unplug it, and falls back to the main display until it's connected again.
 - **Launch at Login:** Starts the app when you log in.
 - **Open Accessibility Settings…:** Appears only when the app doesn't have access yet.
 - **Quit Dock Stay Putter:** Quits the app. You can also press Command+Q while the menu is open.
@@ -76,7 +77,7 @@ The app uses `SMAppService.mainApp` to register as a login item. macOS might rep
 
 - Ad-hoc signing means each rebuild changes the code signature. macOS might ask for Accessibility access again. If the cursor isn't fenced after a rebuild, remove Dock Stay Putter from the Accessibility list and add it again.
 - The app only affects the bottom edge. If your Dock is on the left or right edge, this app doesn't protect it.
-- The main display is the one with the menu bar, as set in **System Settings > Displays**.
+- The main display is the one with the menu bar, as set in **System Settings > Displays**. If you'd rather keep the Dock on another display, choose it under **Keep Dock On**.
 
 ## Uninstall
 
