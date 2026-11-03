@@ -39,13 +39,17 @@ To build the app bundle, run:
 ./build.sh
 ```
 
-The script writes the app to `build/DockStayPutter.app` and signs it ad hoc.
+The script writes the app to `build/DockStayPutter.app`, copies in the app icon, and signs it ad hoc.
 
 To build the app, copy it to `/Applications`, and launch it, run:
 
 ```sh
 ./build.sh --install
 ```
+
+## App icon
+
+The icon source is `Resources/Icon/AppIcon.svg`. After you edit it, run `./Resources/Icon/make-icns.sh` to regenerate `AppIcon.icns`, then rebuild. The script renders the SVG with AppKit and packs it with `iconutil`.
 
 ## Grant Accessibility access
 
