@@ -24,7 +24,16 @@ cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/Icon/AppIcon.icns "$APP/Contents/Resources/"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
 
-codesign --force --sign - --identifier "$BUNDLE_ID" "$APP"
+# Prefer a stable Developer ID identity so macOS keeps Accessibility trust
+# across rebuilds. Ad-hoc signatures change every build and lose trust.
+SIGN_IDENTITY="${SIGN_IDENTITY:-$(security find-identity -v -p codesigning 2>/dev/null | grep -o '"Developer ID Application: [^"]*"' | head -1 | tr -d '"')}"
+if [[ -n "$SIGN_IDENTITY" ]]; then
+    echo "Signing with: $SIGN_IDENTITY"
+    codesign --force --timestamp=none --sign "$SIGN_IDENTITY" --identifier "$BUNDLE_ID" "$APP"
+else
+    echo "No Developer ID found; signing ad hoc (Accessibility trust resets on each rebuild)"
+    codesign --force --sign - --identifier "$BUNDLE_ID" "$APP"
+fi
 
 if [[ "$INSTALL" -eq 1 ]]; then
     rm -rf "/Applications/${APP_NAME}.app"

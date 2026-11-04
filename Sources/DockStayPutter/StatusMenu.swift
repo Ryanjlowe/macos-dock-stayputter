@@ -144,7 +144,7 @@ final class StatusMenu: NSObject, NSMenuDelegate {
     }
 
     @objc private func openAccessibilitySettings() {
-        let urlString = "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+        let urlString = "x-apple.systempreferences:com.apple.settings.PrivacySecurity.extension?Privacy_Accessibility"
         if let url = URL(string: urlString) {
             NSWorkspace.shared.open(url)
         }
