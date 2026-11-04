@@ -1,5 +1,8 @@
 import AppKit
 import ApplicationServices
+import os
+
+private let log = Logger(subsystem: "com.ryanlowe.DockStayPutter", category: "AppDelegate")
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusMenu: StatusMenu?
@@ -30,7 +33,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Shows the system Accessibility prompt on first launch when untrusted.
         let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue(): true] as CFDictionary
-        _ = AXIsProcessTrustedWithOptions(options)
+        let trusted = AXIsProcessTrustedWithOptions(options)
+        log.error("launch: accessibility trusted=\(trusted) bundle=\(Bundle.main.bundlePath, privacy: .public)")
         startFenceIfPossible()
         if !fence.isRunning { startPolling() }
     }
@@ -53,8 +57,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     /// Checks every 2 seconds until Accessibility access is granted.
     private func startPolling() {
         pollTimer?.invalidate()
+        var lastTrusted = AXIsProcessTrusted()
         pollTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
-            guard AXIsProcessTrusted() else { return }
+            let trusted = AXIsProcessTrusted()
+            if trusted != lastTrusted {
+                log.error("poll: accessibility trusted changed to \(trusted)")
+                lastTrusted = trusted
+            }
+            guard trusted else { return }
             self?.startFenceIfPossible()
         }
     }
@@ -62,7 +72,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func startFenceIfPossible() {
         if !fence.isRunning {
             // tapCreate fails without trust, so this is a no-op until granted.
-            if fence.start() {
+            let started = fence.start()
+            log.error("startFenceIfPossible: trusted=\(AXIsProcessTrusted()) start=\(started)")
+            if started {
                 fence.setEnabled(statusMenu?.isEnabled ?? true)
             }
         }

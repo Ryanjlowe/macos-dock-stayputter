@@ -44,6 +44,7 @@ final class CursorFence {
             callback: cursorFenceCallback,
             userInfo: refcon
         ) else {
+            log.error("CGEvent.tapCreate returned nil (no Accessibility trust, or tap refused)")
             return false
         }
 
